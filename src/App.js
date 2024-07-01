@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-// import "./App.css";
 import {
   Container,
   CssBaseline,
@@ -12,43 +11,32 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import MuiAppBar from "@mui/material/AppBar";
-import {
-  Routes,
-  Route,
-  Link,
-  useLocation,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
-
-import { PetsOutlined } from "@mui/icons-material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { PetsOutlined, Favorite as FavoriteIcon } from "@mui/icons-material";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { Login } from "./components/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { Provider, useDispatch, useSelector } from "react-redux";
-import store from "./redux/store";
+import { useSelector, useDispatch } from "react-redux";
 import { loginSuccess, logout } from "./redux/authSlice";
-import { ViewOrEditPet } from "./components/ViewOrEditPet";
-import { CustomDrawer } from "./components/CustomDrawer";
 import { Signup } from "./components/Signup";
+
 function App() {
   const theme = createTheme({
     palette: {
-      background: {
-        default:
-          "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(204,233,148,1) 100%)",
-      },
       primary: {
-        main: "#F5ED31",
+        main: "#673AB7", // Deep Purple
       },
       secondary: {
-        main: "#FF934F",
+        main: "#FF5722", // Deep Orange
+      },
+      background: {
+        default: "#F3E5F5", // Light Purple
       },
     },
     typography: {
-      allVariants: {
-        color: "#0D0C0B",
+      fontFamily: "Roboto, Arial, sans-serif",
+      h6: {
+        fontWeight: 600,
       },
     },
   });
@@ -72,20 +60,20 @@ function App() {
   }));
 
   const [open, setOpen] = React.useState(false);
-
   const handleDrawerOpen = () => {
     setOpen(true);
     localStorage.setItem("drawerOpen", "true");
   };
-
   const handleDrawerClose = () => {
     setOpen(false);
     localStorage.setItem("drawerOpen", "false");
   };
+
   const history = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -94,25 +82,26 @@ function App() {
     } else {
       navigate("/login");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch logout action
-    navigate("/login"); // Redirect to login screen
+    dispatch(logout());
+    navigate("/login");
   };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {/* <div className="App"> */}
       <Container
         maxWidth="lg"
         sx={{
-          paddingTop: "64px", // Adjusted top padding to accommodate AppBar
+          paddingTop: "64px",
           backgroundImage:
             "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(204,233,148,1) 100%)",
           minHeight: "100vh",
           minWidth: "100vw",
-          position: "relative", // Ensure proper positioning for the AppBar
+          position: "relative",
         }}
       >
         <AppBar position="fixed" open={open}>
@@ -124,7 +113,7 @@ function App() {
                 onClick={handleDrawerOpen}
                 edge="start"
                 sx={{
-                  marginRight: 5,
+                  marginRight: 2,
                   ...(open && { display: "none" }),
                 }}
               >
@@ -134,10 +123,21 @@ function App() {
             <Typography variant="h6" noWrap component="div">
               YCF Billing Portal
             </Typography>
-            <FavoriteIcon />
-            <PetsOutlined />
-            <FavoriteIcon />
-            {isAuthenticated && ( // Render logout button if authenticated
+            <IconButton
+              color="inherit"
+              aria-label="favorites"
+              sx={{ ml: 2 }}
+            >
+              <FavoriteIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="pets"
+              sx={{ ml: 2 }}
+            >
+              <PetsOutlined />
+            </IconButton>
+            {isAuthenticated && (
               <IconButton
                 color="inherit"
                 aria-label="logout"
@@ -149,13 +149,13 @@ function App() {
             )}
           </Toolbar>
         </AppBar>
-        <CustomDrawer open={open} handleDrawerClose={handleDrawerClose} />
+        
         <Routes>
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route element={<ProtectedRoute />}>
             <Route
-              path="dashboard/*"
+              path="/dashboard/*"
               element={
                 <DashboardLayout
                   open={open}
@@ -165,7 +165,6 @@ function App() {
               }
             />
           </Route>
-          {/* <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
         </Routes>
       </Container>
     </ThemeProvider>
