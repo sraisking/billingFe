@@ -8,6 +8,7 @@ import {
   Typography,
   createTheme,
   styled,
+  useMediaQuery,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import MuiAppBar from "@mui/material/AppBar";
@@ -19,6 +20,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useSelector, useDispatch } from "react-redux";
 import { loginSuccess, logout } from "./redux/authSlice";
 import { Signup } from "./components/Signup";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 function App() {
   const theme = createTheme({
@@ -51,12 +53,32 @@ function App() {
     }),
     ...(open && {
       marginLeft: "300px",
-      width: "calc(100% - 300px)",
+      width: "calc(100% - 200px)",
       transition: theme.transitions.create(["width", "margin"], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
     }),
+    [theme.breakpoints.down("md")]: {
+      ...(open && {
+        marginLeft: "200px",
+        width: "calc(100% - 200px)",
+        transition: theme.transitions.create(["width", "margin"], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      }),
+    },
+    [theme.breakpoints.down("sm")]: {
+      ...(open && {
+        marginLeft: "100px",
+        width: "calc(100% - 200px)",
+        transition: theme.transitions.create(["width", "margin"], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      }),
+    },
   }));
 
   const [open, setOpen] = React.useState(false);
@@ -89,7 +111,8 @@ function App() {
     dispatch(logout());
     navigate("/login");
   };
-
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  console.log(isSmallScreen);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -120,21 +143,17 @@ function App() {
                 <MenuIcon />
               </IconButton>
             )}
-            <Typography variant="h6" noWrap component="div">
-              YCF Billing Portal
-            </Typography>
-            <IconButton
-              color="inherit"
-              aria-label="favorites"
-              sx={{ ml: 2 }}
+            <Typography
+              variant={isSmallScreen ? "subtitle1" : "h5"}
+              noWrap
+              component="div"
             >
+              {open ? "YCF" : "YCF Billing Portal"}
+            </Typography>
+            <IconButton color="inherit" aria-label="favorites" sx={{ ml: 2 }}>
               <FavoriteIcon />
             </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="pets"
-              sx={{ ml: 2 }}
-            >
+            <IconButton color="inherit" aria-label="pets" sx={{ ml: 2 }}>
               <PetsOutlined />
             </IconButton>
             {isAuthenticated && (
@@ -145,11 +164,22 @@ function App() {
                 sx={{ marginLeft: "auto" }}
               >
                 Logout
+               
+              </IconButton>
+            )}
+            {isAuthenticated && isSmallScreen && (
+              <IconButton
+                color="inherit"
+                aria-label="logout"
+                onClick={handleLogout}
+                sx={{ marginLeft: "auto" }}
+              >
+                <LogoutIcon />
               </IconButton>
             )}
           </Toolbar>
         </AppBar>
-        
+
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

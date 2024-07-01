@@ -35,7 +35,7 @@ export const CustomDrawer = ({ handleDrawerClose, open }) => {
   })(({ theme, open }) => ({
     width: "300px", // Default width for larger screens
     [theme.breakpoints.down("sm")]: {
-      width: "200px", // Adjusted width for smaller screens
+      width: "150px", // Adjusted width for smaller screens
     },
     "& .MuiPaper-root": {
       backgroundColor: "transparent",
