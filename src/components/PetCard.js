@@ -7,9 +7,11 @@ import {
   Typography,
   Button,
   CardActions,
+  useMediaQuery,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { useTheme } from "@emotion/react";
 
 const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) => {
   // Use a placeholder image if picture is not provided
@@ -19,8 +21,8 @@ const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) =
     handleViewClicked(id);
     // navigate(`pet/${id}`)
   };
- 
-
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const handleDelete = async () => {
     try {
       // Make DELETE request to delete pet by ID
@@ -35,7 +37,7 @@ const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) =
   };
 
   return (
-    <Card sx={{ maxWidth: 345, margin: 2 }}>
+    <Card sx={{ maxWidth: isSmallScreen?145:345, margin: 2 }}>
       <CardMedia component="img" height="140" image={'cat.jpg'} alt={name} />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
