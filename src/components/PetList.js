@@ -34,9 +34,9 @@ export const PetList = ({ pets, isSmallScreen, refreshPets }) => {
               {pets.map((pet) => (
                 <Box key={pet._id} display="flex" justifyContent="center">
                   <PetCard
-                    picture={pet.picture}
                     name={pet.name}
                     owner={pet.owner}
+                    fullData={pet}
                     id={pet._id}
                     handleViewClicked={handleViewClicked}
                     refreshPets={refreshPets}
@@ -49,9 +49,9 @@ export const PetList = ({ pets, isSmallScreen, refreshPets }) => {
               {pets.map((pet) => (
                 <Grid key={pet._id} item xs={12} sm={6} md={4}>
                   <PetCard
-                    picture={pet.picture}
                     name={pet.name}
                     owner={pet.owner}
+                    fullData={pet}
                     id={pet._id}
                     handleViewClicked={handleViewClicked}
                     refreshPets={refreshPets}

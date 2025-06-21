@@ -21,6 +21,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { loginSuccess, logout } from "./redux/authSlice";
 import { Signup } from "./components/Signup";
 import LogoutIcon from "@mui/icons-material/Logout";
+// import PetAnimated from "./components/PetAnimated";
+
+
 
 function App() {
   const theme = createTheme({
@@ -127,6 +130,7 @@ function App() {
           position: "relative",
         }}
       >
+       {/* <PetAnimated /> This will be your 3D animated background */}
         <AppBar position="fixed" open={open}>
           <Toolbar>
             {history.pathname === "/dashboard" && (

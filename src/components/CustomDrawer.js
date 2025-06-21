@@ -20,7 +20,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const navigationMapper = {
   Dashboard: <DashboardIcon />,
   "Add Pets": <AddTaskIcon />,
-  Settings: <SettingsIcon />,
+  "Expenses": <SettingsIcon />,
 };
 
 export const CustomDrawer = ({ handleDrawerClose, open }) => {
@@ -67,6 +67,7 @@ export const CustomDrawer = ({ handleDrawerClose, open }) => {
   const handleClick = (text) => () => {
     console.log(text);
     if (text === "Add Pets") navigate("pet/add");
+    if(text==="Expenses")navigate("pet/expenses")
     if (text === "Dashboard") navigate("/dashboard");
     handleDrawerClose()
   };
@@ -84,7 +85,7 @@ export const CustomDrawer = ({ handleDrawerClose, open }) => {
       </DrawerHeader>
       <Divider />
       <List>
-        {["Dashboard", "Add Pets", "Settings"].map((text, index) => (
+        {["Dashboard", "Add Pets", "Expenses"].map((text, index) => (
           <ListItem key={text} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{

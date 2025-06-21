@@ -46,6 +46,11 @@ export const ViewOrEditPet = () => {
     vaccinationDate: "",
     contact: "",
     reasonOfAdmission: "",
+    paid: false,
+    partiallyPaid: {
+      isPartiallyPaid: false,
+      amount: 0,
+    },
   });
 
   const [loading, setLoading] = useState(false);
@@ -157,6 +162,49 @@ export const ViewOrEditPet = () => {
     setPetData({ ...petData, expenses: updatedExpenses });
   };
 
+  const getPaymentStatusValue = () => {
+    if (petData.paid) return "paid";
+    if (petData?.partiallyPaid?.isPartiallyPaid) return "isPartiallyPaid";
+    return "unpaid";
+  };
+    const handlePaymentStatus = (e) => {
+    const { name, value } = e.target;
+    if (value === "paid") {
+      setPetData({
+        ...petData,
+        [name]: true,
+        partiallyPaid: {
+          isPartiallyPaid: false,
+        },
+      });
+    } else if (value === "isPartiallyPaid") {
+      setPetData({
+        ...petData,
+        [name]: false,
+        partiallyPaid: {
+          isPartiallyPaid: true,
+        },
+      });
+    } else {
+      setPetData({
+        ...petData,
+        [name]: false,
+        partiallyPaid: {
+          isPartiallyPaid: false,
+        },
+      });
+    }
+  };
+  const handlePartialPayment = (e) => {
+    const { name, value } = e.target;
+    setPetData({
+      ...petData,
+      [name]: {
+        isPartiallyPaid: true,
+        amount: value,
+      },
+    });
+  };
   return (
     <Container>
       <Typography variant="h4">Pet Detail View</Typography>
@@ -347,6 +395,30 @@ export const ViewOrEditPet = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <FormControl fullWidth>
+          <InputLabel>Is you expenses Paid?</InputLabel>
+          <Select
+            name="paid"
+            value={getPaymentStatusValue()}
+            onChange={handlePaymentStatus}
+          >
+            <MenuItem value="paid">Paid</MenuItem>
+            <MenuItem value="isPartiallyPaid">Partially Paid</MenuItem>
+            <MenuItem value="unpaid">Unpaid</MenuItem>
+          </Select>
+        </FormControl>
+        {petData.partiallyPaid?.isPartiallyPaid && (
+          <TextField
+            fullWidth
+            label="Please enter the partially paid amount"
+            name="partiallyPaid"
+            value={petData.partiallyPaid.amount}
+            onChange={handlePartialPayment}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        )}
         {isEditMode ? (
           <Button
             variant="contained"
@@ -390,13 +462,29 @@ export const ViewOrEditPet = () => {
           Error updating pet. Please try again later.
         </Alert>
       </Snackbar>
-      <Snackbar open={pdfSnackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+      <Snackbar
+        open={pdfSnackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           Invoice generated successfully!
         </Alert>
       </Snackbar>
-      <Snackbar open={pdfErrorSnackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+      <Snackbar
+        open={pdfErrorSnackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           Error generating invoice!
         </Alert>
       </Snackbar>

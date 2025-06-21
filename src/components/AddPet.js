@@ -1,29 +1,50 @@
-import React, { useState } from 'react';
-import { 
-  Container, Typography, TextField, Button, Stack, 
-  FormControl, InputLabel, Select, MenuItem, Snackbar, Alert, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
-  IconButton, CircularProgress 
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import api from '../api';
+import React, { useState } from "react";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Snackbar,
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import api from "../api";
 
 export const AddPet = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    owner: '',
-    expenses: [{ item: '', cost: 0 }],
-    dateOfAdmission: '',
-    dateOfDischarge: '',
-    spotOnStatus: 'pending',
-    spotOnDate: '',
-    dewormingStatus: 'pending',
-    dewormingDate: '',
-    vaccinationStatus: 'pending',
-    vaccinationDate: '',
-    contact: '',
-    reasonOfAdmission: '',
+    name: "",
+    owner: "",
+    expenses: [{ item: "", cost: 0 }],
+    dateOfAdmission: "",
+    dateOfDischarge: "",
+    spotOnStatus: "pending",
+    spotOnDate: "",
+    dewormingStatus: "pending",
+    dewormingDate: "",
+    vaccinationStatus: "pending",
+    vaccinationDate: "",
+    contact: "",
+    reasonOfAdmission: "",
+    paid: false,
+    partiallyPaid: {
+      amount: 0,
+      isPartiallyPaid: false,
+    },
   });
 
   const [loading, setLoading] = useState(false);
@@ -42,9 +63,49 @@ export const AddPet = () => {
   };
 
   const handleAddExpense = () => {
-    setFormData({ ...formData, expenses: [...formData.expenses, { item: '', cost: 0 }] });
+    setFormData({
+      ...formData,
+      expenses: [...formData.expenses, { item: "", cost: 0 }],
+    });
   };
-
+  const handlePaymentStatus = (e) => {
+    const { name, value } = e.target;
+    if (value === "paid") {
+      setFormData({
+        ...formData,
+        [name]: true,
+        partiallyPaid: {
+          isPartiallyPaid: false,
+        },
+      });
+    } else if (value === "isPartiallyPaid") {
+      setFormData({
+        ...formData,
+        [name]: false,
+        partiallyPaid: {
+          isPartiallyPaid: true,
+        },
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: false,
+        partiallyPaid: {
+          isPartiallyPaid: false,
+        },
+      });
+    }
+  };
+  const handlePartialPayment = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: {
+        isPartiallyPaid: true,
+        amount: value,
+      },
+    });
+  };
   const handleRemoveExpense = (index) => {
     const updatedExpenses = formData.expenses.filter((_, i) => i !== index);
     setFormData({ ...formData, expenses: updatedExpenses });
@@ -54,26 +115,31 @@ export const AddPet = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await api.post('/pets', formData);
-      console.log('Pet added successfully:', response.data);
+      const response = await api.post("/pets", formData);
+      console.log("Pet added successfully:", response.data);
       setOpenSnackbar(true);
       setFormData({
-        name: '',
-        owner: '',
-        expenses: [{ item: '', cost: 0 }],
-        dateOfAdmission: '',
-        dateOfDischarge: '',
-        spotOnStatus: 'pending',
-        spotOnDate: '',
-        dewormingStatus: 'pending',
-        dewormingDate: '',
-        vaccinationStatus: 'pending',
-        vaccinationDate: '',
-        contact: '',
-        reasonOfAdmission: '',
+        name: "",
+        owner: "",
+        expenses: [{ item: "", cost: 0 }],
+        dateOfAdmission: "",
+        dateOfDischarge: "",
+        spotOnStatus: "pending",
+        spotOnDate: "",
+        dewormingStatus: "pending",
+        dewormingDate: "",
+        vaccinationStatus: "pending",
+        vaccinationDate: "",
+        contact: "",
+        reasonOfAdmission: "",
+        paid: false,
+        partiallyPaid: {
+          isPartiallyPaid: false,
+          amount: 0,
+        },
       });
     } catch (error) {
-      console.error('Error adding pet:', error);
+      console.error("Error adding pet:", error);
       setErrorSnackbarOpen(true);
     } finally {
       setLoading(false);
@@ -81,15 +147,19 @@ export const AddPet = () => {
   };
 
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setOpenSnackbar(false);
     setErrorSnackbarOpen(false);
   };
-
+  const getPaymentStatusValue = () => {
+    if (formData.paid) return "paid";
+    if (formData.partiallyPaid?.isPartiallyPaid) return "isPartiallyPaid";
+    return "unpaid";
+  };
   return (
-    <Container >
+    <Container>
       <Typography variant="h4">Add Pet View</Typography>
       <form onSubmit={handleSubmit}>
         <Stack spacing={2}>
@@ -228,7 +298,9 @@ export const AddPet = () => {
                       <TextField
                         name="item"
                         value={expense.item}
-                        onChange={(e) => handleExpenseChange(index, 'item', e.target.value)}
+                        onChange={(e) =>
+                          handleExpenseChange(index, "item", e.target.value)
+                        }
                       />
                     </TableCell>
                     <TableCell>
@@ -236,7 +308,9 @@ export const AddPet = () => {
                         name="cost"
                         type="number"
                         value={expense.cost}
-                        onChange={(e) => handleExpenseChange(index, 'cost', e.target.value)}
+                        onChange={(e) =>
+                          handleExpenseChange(index, "cost", e.target.value)
+                        }
                       />
                     </TableCell>
                     <TableCell>
@@ -261,13 +335,37 @@ export const AddPet = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <FormControl fullWidth>
+            <InputLabel>Is you expenses Paid?</InputLabel>
+            <Select
+              name="paid"
+              value={getPaymentStatusValue()}
+              onChange={handlePaymentStatus}
+            >
+              <MenuItem value="paid">Paid</MenuItem>
+              <MenuItem value="isPartiallyPaid">Partially Paid</MenuItem>
+              <MenuItem value="unpaid">Unpaid</MenuItem>
+            </Select>
+          </FormControl>
+          {formData.partiallyPaid?.isPartiallyPaid && (
+            <TextField
+              fullWidth
+              label="Please enter the partially paid amount"
+              name="partiallyPaid"
+              value={formData.partiallyPaid.amount}
+              onChange={handlePartialPayment}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          )}
           <Button
             type="submit"
             variant="contained"
             color="primary"
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Submit'}
+            {loading ? <CircularProgress size={24} /> : "Submit"}
           </Button>
         </Stack>
       </form>
@@ -275,7 +373,7 @@ export const AddPet = () => {
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <Alert onClose={handleCloseSnackbar} severity="success">
           Pet has been successfully added to YCF database
@@ -285,7 +383,7 @@ export const AddPet = () => {
         open={errorSnackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <Alert onClose={handleCloseSnackbar} severity="error">
           Error adding pet. Please try again later.
@@ -294,5 +392,3 @@ export const AddPet = () => {
     </Container>
   );
 };
-
- 

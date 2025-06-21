@@ -13,10 +13,18 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { useTheme } from "@emotion/react";
 
-const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) => {
+const PetCard = ({
+  picture,
+  name,
+  id,
+  owner,
+  fullData,
+  handleViewClicked,
+  refreshPets,
+}) => {
   // Use a placeholder image if picture is not provided
   const navigate = useNavigate();
-  
+  console.log(fullData);
   const handleClick = (e) => {
     handleViewClicked(id);
     // navigate(`pet/${id}`)
@@ -37,8 +45,7 @@ const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) =
   };
 
   return (
-    <Card sx={{ maxWidth: isSmallScreen?145:345, margin: 2 }}>
-      <CardMedia component="img" height="140" image={'cat.jpg'} alt={name} />
+    <Card sx={{ maxWidth: isSmallScreen ? 145 : 345, margin: 2 }}>
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
           {name}
@@ -46,6 +53,24 @@ const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) =
         <Typography variant="body2" color="text.secondary">
           Owner: {owner}
         </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Expenses: {fullData?.totalExpense}
+        </Typography>
+        {fullData?.paid && (
+          <Typography variant="body2" color="text.secondary">
+            Payments are settled
+          </Typography>
+        )}
+        {!fullData?.paid && (
+          <Typography variant="body2" color="text.secondary">
+            Payments are Not settled
+          </Typography>
+        )}
+        {fullData?.partiallypaid?.isPartiallyPaid && (
+          <Typography variant="body2" color="text.secondary">
+            Rs {fullData?.partiallypaid?.isPartiallyPaid?.amount} has been paid
+          </Typography>
+        )}
       </CardContent>
       <CardActions>
         <Button
@@ -56,7 +81,12 @@ const PetCard = ({ picture, name, id, owner, handleViewClicked, refreshPets }) =
         >
           View
         </Button>
-        <Button size="small" variant="contained" color="error" onClick={handleDelete}>
+        <Button
+          size="small"
+          variant="contained"
+          color="error"
+          onClick={handleDelete}
+        >
           Delete
         </Button>
       </CardActions>
