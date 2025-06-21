@@ -8,8 +8,9 @@ import {
   Stack,
   Typography,
   useMediaQuery,
+  Grid,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CustomDrawer } from "./CustomDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPets } from "../redux/petsSlice";
@@ -19,7 +20,10 @@ import { PetList } from "./PetList";
 import { ViewOrEditPet } from "./ViewOrEditPet";
 import { AddPet } from "./AddPet";
 import { PetStatsChart } from "./PetStatsChart";
-import {Expenses} from "./Expenses";
+import { Expenses } from "./Expenses";
+import MenuIcon from "@mui/icons-material/Menu";
+import { IconButton } from "@mui/material";
+import { BottomNav } from "./BottomNav";
 
 export const DashboardLayout = ({
   open,
@@ -30,31 +34,20 @@ export const DashboardLayout = ({
   const { pets, loading, error } = useSelector((state) => state.pets);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [filter, setFilter] = useState("all");
+
   useEffect(() => {
     dispatch(fetchPets());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
-  console.log({ loading, error });
-  const refreshPets = () => {
-    dispatch(fetchPets());
-  };
-  const [filter, setFilter] = React.useState("all");
+  const refreshPets = () => dispatch(fetchPets());
 
   const filteredPets = pets.filter((pet) => {
     if (filter === "paid") return pet.paid;
-    if (filter === "partially")
-      return !pet.paid && pet.partiallyPaid?.isPartiallyPaid;
-    if (filter === "unpaid")
-      return !pet.paid && !pet.partiallyPaid?.isPartiallyPaid;
+    if (filter === "partially") return !pet.paid && pet.partiallyPaid?.isPartiallyPaid;
+    if (filter === "unpaid") return !pet.paid && !pet.partiallyPaid?.isPartiallyPaid;
     return true;
   });
-  const mainContentWidth = {
-    xs: open ? "calc(100% - 150px)" : "calc(100% - 70px)", // Adjusted width when drawer is open on small screens
-    sm: open ? "calc(100% - 300px)" : "calc(100% - 70px)",
-  };
-
-  const mainContentMarginLeft = isSmallScreen && open ? "150px" : "0"; // Margin-left adjustment for small screens when drawer is open
 
   const paidPets = pets.filter((pet) => pet.paid);
   const partiallyPaidPets = pets.filter(
@@ -65,11 +58,8 @@ export const DashboardLayout = ({
   );
 
   const totalAmountCollected = pets.reduce((sum, pet) => {
-    if (pet.paid) {
-      return sum + (pet.totalExpense || 0);
-    } else if (pet.partiallyPaid?.isPartiallyPaid) {
-      return sum + (pet.partiallyPaid.amount || 0);
-    }
+    if (pet.paid) return sum + (pet.totalExpense || 0);
+    if (pet.partiallyPaid?.isPartiallyPaid) return sum + (pet.partiallyPaid.amount || 0);
     return sum;
   }, 0);
 
@@ -79,40 +69,57 @@ export const DashboardLayout = ({
     const paidAmount = pet.partiallyPaid?.amount || 0;
     return sum + (expense - paidAmount);
   }, 0);
+
   return (
-    <Container
-      maxWidth="lg"
+    <Box
       sx={{
-        backgroundImage:
-          "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(204,233,148,1) 100%)",
-        minHeight: "100vh",
-        minWidth: "100vw",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        padding: theme.spacing(2),
+        minHeight: "100vh",
+        backgroundImage:
+          "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(204,233,148,1) 100%)",
       }}
     >
-      <CustomDrawer open={open} handleDrawerClose={handleDrawerClose} />
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Typography variant="h6" color="error">
-          {error}
-        </Typography>
-      ) : (
-        <Container>
-          <Box
-            width={mainContentWidth}
-            sx={{
-              marginTop: theme.spacing(2),
-              marginLeft: mainContentMarginLeft,
-              transition: theme.transitions.create(["width", "margin"], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-            }}
-          >
+      {/* Small screen menu toggle */}
+      {isSmallScreen && (
+        <IconButton
+          onClick={handleDrawerOpen}
+          sx={{ position: "fixed", top: 16, left: 16, zIndex: 1300 }}
+          color="primary"
+        >
+          <MenuIcon />
+        </IconButton>
+      )}
+
+
+      {!isSmallScreen && (
+        <CustomDrawer open={open} handleDrawerClose={handleDrawerClose} />
+      )}
+      {isSmallScreen && (
+        <BottomNav />
+      )}
+
+
+      {/* Main Content */}
+      <Box
+        sx={{
+          marginLeft: !isSmallScreen ? (open ? "200px" : "70px") : 0,
+          padding: theme.spacing(2),
+          width: !isSmallScreen ? `calc(100% - ${open ? 200 : 70}px)` : "100%",
+          transition: theme.transitions.create(["margin", "width"], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+        }}
+      >
+        {loading ? (
+          <CircularProgress />
+        ) : error ? (
+          <Typography variant="h6" color="error">
+            {error}
+          </Typography>
+        ) : (
+          <>
             <Stack direction={"column"} alignItems={"center"}>
               <Button
                 size="small"
@@ -128,51 +135,32 @@ export const DashboardLayout = ({
                   index
                   element={
                     <>
+                      {/* Dashboard cards */}
                       <Stack
                         direction="row"
                         spacing={2}
                         justifyContent="center"
+                        flexWrap="wrap"
+                        useFlexGap
                         mb={2}
                       >
-                        <Card sx={{ minWidth: 150, bgcolor: "#d0f0c0" }}>
-                          <CardContent>
-                            <Typography variant="h6">Total Pets</Typography>
-                            <Typography>{pets.length}</Typography>
-                          </CardContent>
-                        </Card>
-                        <Card sx={{ minWidth: 150, bgcolor: "#c8e6c9" }}>
-                          <CardContent>
-                            <Typography variant="h6">Fully Paid</Typography>
-                            <Typography>{paidPets.length}</Typography>
-                          </CardContent>
-                        </Card>
-                        <Card sx={{ minWidth: 150, bgcolor: "#fff9c4" }}>
-                          <CardContent>
-                            <Typography variant="h6">Partially Paid</Typography>
-                            <Typography>{partiallyPaidPets.length}</Typography>
-                          </CardContent>
-                        </Card>
-                        <Card sx={{ minWidth: 150, bgcolor: "#ffcdd2" }}>
-                          <CardContent>
-                            <Typography variant="h6">Unpaid</Typography>
-                            <Typography>{unpaidPets.length}</Typography>
-                          </CardContent>
-                        </Card>
-                        <Card sx={{ minWidth: 150, bgcolor: "#bbdefb" }}>
-                          <CardContent>
-                            <Typography variant="h6">
-                              Amount Collected
-                            </Typography>
-                            <Typography>₹{totalAmountCollected}</Typography>
-                          </CardContent>
-                        </Card>
-                        <Card sx={{ minWidth: 150, bgcolor: "#f8bbd0" }}>
-                          <CardContent>
-                            <Typography variant="h6">Pending Amount</Typography>
-                            <Typography>₹{totalPendingAmount}</Typography>
-                          </CardContent>
-                        </Card>
+                        {[
+                          { title: "Total Pets", count: pets.length, bg: "#d0f0c0" },
+                          { title: "Fully Paid", count: paidPets.length, bg: "#c8e6c9" },
+                          { title: "Partially Paid", count: partiallyPaidPets.length, bg: "#fff9c4" },
+                          { title: "Unpaid", count: unpaidPets.length, bg: "#ffcdd2" },
+                          { title: "Amount Collected", count: `₹${totalAmountCollected}`, bg: "#bbdefb" },
+                          { title: "Pending Amount", count: `₹${totalPendingAmount}`, bg: "#f8bbd0" },
+                        ].map(({ title, count, bg }) => (
+                          <Card key={title} sx={{ minWidth: 150, maxWidth: 200, backgroundColor: bg, flex: "1 1 150px" }}>
+                            <CardContent>
+                              <Typography variant="h6">{title}</Typography>
+                              <Typography>{count}</Typography>
+                            </CardContent>
+                          </Card>
+                        ))}
                       </Stack>
+
                       <PetStatsChart
                         data={{
                           paid: paidPets.length,
@@ -180,44 +168,36 @@ export const DashboardLayout = ({
                           unpaid: unpaidPets.length,
                         }}
                       />
+
+                      {/* Filter buttons */}
                       <Stack
-                        direction="row"
+                        direction={isSmallScreen ? "column" : "row"}
                         spacing={2}
                         mb={2}
                         justifyContent="center"
                       >
-                        <Button
-                          variant={filter === "all" ? "contained" : "outlined"}
-                          onClick={() => setFilter("all")}
-                        >
-                          All
-                        </Button>
-                        <Button
-                          variant={filter === "paid" ? "contained" : "outlined"}
-                          color="success"
-                          onClick={() => setFilter("paid")}
-                        >
-                          Paid
-                        </Button>
-                        <Button
-                          variant={
-                            filter === "partially" ? "contained" : "outlined"
-                          }
-                          color="warning"
-                          onClick={() => setFilter("partially")}
-                        >
-                          Partially Paid
-                        </Button>
-                        <Button
-                          variant={
-                            filter === "unpaid" ? "contained" : "outlined"
-                          }
-                          color="error"
-                          onClick={() => setFilter("unpaid")}
-                        >
-                          Unpaid
-                        </Button>
+                        {["all", "paid", "partially", "unpaid"].map((key) => (
+                          <Button
+                            key={key}
+                            variant={filter === key ? "contained" : "outlined"}
+                            color={
+                              key === "paid"
+                                ? "success"
+                                : key === "partially"
+                                  ? "warning"
+                                  : key === "unpaid"
+                                    ? "error"
+                                    : "primary"
+                            }
+                            onClick={() => setFilter(key)}
+                          >
+                            {key === "all"
+                              ? "All"
+                              : key.charAt(0).toUpperCase() + key.slice(1) + " Paid"}
+                          </Button>
+                        ))}
                       </Stack>
+
                       <PetList
                         pets={filteredPets}
                         isSmallScreen={isSmallScreen}
@@ -231,9 +211,9 @@ export const DashboardLayout = ({
                 <Route path="pet/expenses" element={<Expenses />} />
               </Routes>
             </Stack>
-          </Box>
-        </Container>
-      )}
-    </Container>
+          </>
+        )}
+      </Box>
+    </Box>
   );
 };

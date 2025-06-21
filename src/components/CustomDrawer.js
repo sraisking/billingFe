@@ -14,13 +14,13 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import SettingsIcon from "@mui/icons-material/Settings";
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useLocation, useNavigate } from "react-router-dom";
 
 const navigationMapper = {
   Dashboard: <DashboardIcon />,
   "Add Pets": <AddTaskIcon />,
-  "Expenses": <SettingsIcon />,
+  "Expenses": <CurrencyRupeeIcon />,
 };
 
 export const CustomDrawer = ({ handleDrawerClose, open }) => {

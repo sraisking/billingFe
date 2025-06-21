@@ -13,7 +13,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import MuiAppBar from "@mui/material/AppBar";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { PetsOutlined, Favorite as FavoriteIcon } from "@mui/icons-material";
+import { PetsOutlined, Favorite as FavoriteIcon,CurrencyRupeeIcon } from "@mui/icons-material";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { Login } from "./components/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";

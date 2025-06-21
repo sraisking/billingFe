@@ -1,4 +1,3 @@
-// ExpenseTracker.jsx
 import React, { useEffect, useState } from "react";
 import {
   TextField,
@@ -13,6 +12,7 @@ import {
   TableCell,
   TableBody,
   TableContainer,
+  useMediaQuery,
 } from "@mui/material";
 import {
   PieChart,
@@ -26,12 +26,16 @@ import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import api from "../api";
+import { useTheme } from "@emotion/react";
 
 dayjs.extend(isBetween);
 
 const COLORS = ["#66bb6a", "#ffca28", "#ef5350", "#42a5f5"];
 
 export const Expenses = () => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [formData, setFormData] = useState({
     category: "",
     amount: "",
@@ -115,18 +119,21 @@ export const Expenses = () => {
   ).map(([name, value]) => ({ name, value }));
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} sx={{ padding: theme.spacing(2) }}>
       <Typography variant="h4" align="center">
         Expense Tracker
       </Typography>
 
+      {/* Form */}
       <form onSubmit={handleSubmit}>
         <Stack
           spacing={2}
-          direction={{ xs: "column", sm: "row" }}
+          direction={isSmallScreen ? "column" : "row"}
           flexWrap="wrap"
+          justifyContent="center"
         >
           <TextField
+            fullWidth={isSmallScreen}
             label="Category"
             name="category"
             value={formData.category}
@@ -134,6 +141,7 @@ export const Expenses = () => {
             required
           />
           <TextField
+            fullWidth={isSmallScreen}
             label="Amount"
             type="number"
             name="amount"
@@ -142,12 +150,14 @@ export const Expenses = () => {
             required
           />
           <TextField
+            fullWidth={isSmallScreen}
             label="Description"
             name="description"
             value={formData.description}
             onChange={handleChange}
           />
           <TextField
+            fullWidth={isSmallScreen}
             type="date"
             name="date"
             value={formData.date}
@@ -155,6 +165,7 @@ export const Expenses = () => {
             InputLabelProps={{ shrink: true }}
           />
           <TextField
+            fullWidth={isSmallScreen}
             select
             name="paymentType"
             label="Payment Type"
@@ -164,14 +175,21 @@ export const Expenses = () => {
             <MenuItem value="Cash">Cash</MenuItem>
             <MenuItem value="Online">Online</MenuItem>
           </TextField>
-          <Button variant="contained" type="submit">
+          <Button variant="contained" type="submit" fullWidth={isSmallScreen}>
             Add
           </Button>
         </Stack>
       </form>
 
-      <Stack direction="row" spacing={2}>
+      {/* Filters */}
+      <Stack
+        direction={isSmallScreen ? "column" : "row"}
+        spacing={2}
+        alignItems="center"
+        justifyContent="center"
+      >
         <TextField
+          fullWidth={isSmallScreen}
           type="date"
           label="From"
           InputLabelProps={{ shrink: true }}
@@ -179,19 +197,31 @@ export const Expenses = () => {
           onChange={(e) => setStartDate(e.target.value)}
         />
         <TextField
+          fullWidth={isSmallScreen}
           type="date"
           label="To"
           InputLabelProps={{ shrink: true }}
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
-        <Button onClick={handleExport} variant="outlined" color="success">
+        <Button
+          fullWidth={isSmallScreen}
+          onClick={handleExport}
+          variant="outlined"
+          color="success"
+        >
           Export to Excel
         </Button>
       </Stack>
 
-      <Stack direction="row" spacing={4} justifyContent="center">
-        <ResponsiveContainer width="45%" height={250}>
+      {/* Charts */}
+      <Stack
+        direction={isSmallScreen ? "column" : "row"}
+        spacing={2}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <ResponsiveContainer width={isSmallScreen ? "100%" : "45%"} height={250}>
           <PieChart>
             <Pie
               data={categoryData}
@@ -209,7 +239,7 @@ export const Expenses = () => {
           </PieChart>
         </ResponsiveContainer>
 
-        <ResponsiveContainer width="45%" height={250}>
+        <ResponsiveContainer width={isSmallScreen ? "100%" : "45%"} height={250}>
           <PieChart>
             <Pie
               data={paymentData}
@@ -228,8 +258,17 @@ export const Expenses = () => {
         </ResponsiveContainer>
       </Stack>
 
-      <TableContainer component={Paper}>
-        <Table>
+      {/* Table */}
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflowX: "auto",
+          width: "100%",
+          maxWidth: isSmallScreen ? "100%" : "80%",
+          alignSelf: "center",
+        }}
+      >
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
